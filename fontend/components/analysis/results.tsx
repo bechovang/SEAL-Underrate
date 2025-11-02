@@ -1,14 +1,15 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { AlertCircle, AlertTriangle, Info, CheckCircle2, Clock, Calendar, ExternalLink, X } from "lucide-react"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { AlertCircle, AlertTriangle, Info, CheckCircle2, Clock, Calendar, ExternalLink, X } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import type { AnalysisData } from "@/types/analysis";
 
 interface AnalysisResultsProps {
-  data: any
+  data: AnalysisData;
 }
 
 export function AnalysisResults({ data }: AnalysisResultsProps) {
