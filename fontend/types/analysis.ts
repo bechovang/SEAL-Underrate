@@ -1,60 +1,130 @@
-export interface AnalysisData {
+// Backend API response types
+export interface BackendJobResponse {
   job_id: string;
-  status: string;
-  created_at: string;
-  completed_at: string;
-  processing_time_seconds: number;
-  target_url: string;
-  overall_score: number;
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" | "NOT_FOUND";
+  result?: BackendAnalysisResult;
+  error_message?: string | null;
+}
+
+export interface BackendAnalysisResult {
+  job_id: string;
+  url: string;
+  analyzed_at: string;
   summary: string;
-  screenshots: {
-    desktop: string;
-    mobile: string;
-    tablet: string;
-  };
+  overall_score: number;
   performance: {
-    load_time: number;
-    first_contentful_paint: number;
-    time_to_interactive: number;
-    total_page_size: number;
-  };
-  report_data: {
-    issues: Array<{
-      id: string;
-      category: string;
-      severity: string;
-      title: string;
-      description: string;
-      recommendation: string;
-    }>;
-    issues_metadata: {
-      total: number;
-      critical: number;
-      high: number;
-      medium: number;
-      low: number;
+    score: number;
+    metrics: {
+      fcp: number | null;
+      lcp: number | null;
+      cls: number | null;
+      load_time: number | null;
     };
   };
-  comparison: {
-    performance: number;
-    accessibility: number;
-    best_practices: number;
-    seo: number;
+  accessibility: {
+    score: number | null;
   };
-  metadata: {
-    analyzer_version: string;
-    model_used: string;
-    analysis_date: string;
+  design: {
+    score: number;
+    responsive_quality: "excellent" | "good" | "fair" | "poor";
   };
+  issues: {
+    code: BackendIssue[];
+    ui: BackendIssue[];
+  };
+  priority_actions: BackendAction[];
+  screenshots: {
+    desktop: string;
+    tablet: string;
+    mobile: string;
+  };
+}
+
+export interface BackendIssue {
+  category: string;
+  severity: "critical" | "high" | "medium" | "low";
+  title: string;
+  description: string;
+  recommendation: string;
+  location?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+}
+
+export interface BackendAction {
+  action: string;
+  impact: "high" | "medium" | "low";
+  effort: "easy" | "medium" | "hard";
+}
+
+// Frontend types (transformed from backend)
+export interface AnalysisData {
+  job_id: string;
+  status: "pending" | "processing" | "completed" | "failed";
+  url?: string;
+  analyzed_at?: string;
+  overall_score?: number;
+  summary?: string;
+  performance?: {
+    score?: number;
+    metrics?: {
+      fcp?: number;
+      lcp?: number;
+      cls?: number;
+      load_time?: number;
+    };
+  };
+  accessibility?: {
+    score?: number;
+  };
+  design?: {
+    score?: number;
+    responsive_quality?: string;
+  };
+  issues?: {
+    code: Issue[];
+    ui: Issue[];
+  };
+  priority_actions?: Action[];
+  screenshots?: {
+    desktop?: string;
+    mobile?: string;
+    tablet?: string;
+  };
+  error_message?: string;
+}
+
+export interface Issue {
+  id: string;
+  category: string;
+  severity: "critical" | "high" | "medium" | "low";
+  title: string;
+  description: string;
+  recommendation: string;
+  location?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+}
+
+export interface Action {
+  id: string;
+  action: string;
+  impact: "high" | "medium" | "low";
+  effort: "easy" | "medium" | "hard";
 }
 
 export interface AnalysisResponse {
   job_id: string;
-  status: string;
 }
 
 export interface AnalysisStatus {
-  status: "processing" | "completed" | "failed";
+  status: "pending" | "processing" | "completed" | "failed";
   job_id: string;
   error?: string;
 }

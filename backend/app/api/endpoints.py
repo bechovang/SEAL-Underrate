@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app import schemas
 from app.models.job import Job
 from app.services.analyzer import run_analysis_task_bg
+import os
+from pathlib import Path
 
 router = APIRouter()
 
@@ -38,3 +40,41 @@ def get_status(job_id: str, db: Session = Depends(get_db)):
         "result": job.result,
         "error_message": job.error_message
     }
+
+
+@router.get("/screenshot/{job_id}/{device}")
+async def get_screenshot(job_id: str, device: str, db: Session = Depends(get_db)):
+    """
+    Serve screenshot images for completed analysis jobs
+    """
+    # Validate device parameter
+    if device not in ["desktop", "tablet", "mobile"]:
+        raise HTTPException(status_code=400, detail="Invalid device type")
+
+    # Check if job exists and is completed
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if job.status.value != "COMPLETED":
+        raise HTTPException(status_code=400, detail="Job not completed yet")
+
+    if not job.result or not job.result.get("screenshots"):
+        raise HTTPException(status_code=404, detail="No screenshots found")
+
+    # Get screenshot path
+    screenshot_path = job.result["screenshots"].get(device)
+    if not screenshot_path:
+        raise HTTPException(status_code=404, detail=f"No {device} screenshot found")
+
+    # Check if file exists
+    if not os.path.exists(screenshot_path):
+        raise HTTPException(status_code=404, detail="Screenshot file not found")
+
+    # Return file
+    from fastapi.responses import FileResponse
+    return FileResponse(
+        path=screenshot_path,
+        media_type="image/png",
+        filename=f"{device}.png"
+    )

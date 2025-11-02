@@ -6,13 +6,13 @@ export function useAnalysis() {
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<AnalysisData | null>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Clean up event source on unmount
+  // Clean up polling on unmount
   useEffect(() => {
     return () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
       }
     };
   }, []);
@@ -28,40 +28,55 @@ export function useAnalysis() {
     }
   };
 
-  // Close any existing event source
-  const closeEventSource = () => {
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
+  // Stop polling
+  const stopPolling = () => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
     }
   };
 
-  // Handle SSE events
-  const setupEventSource = (jobId: string) => {
-    closeEventSource();
+  // Poll job status
+  const pollStatus = async (jobId: string) => {
+    try {
+      const response = await fetch(`/api/status?job_id=${jobId}`);
 
-    const eventSource = new EventSource(`/api/status?job_id=${jobId}`);
-    eventSourceRef.current = eventSource;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
 
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data) as AnalysisData;
+      const data: AnalysisData = await response.json();
 
       if (data.status === "completed") {
         setResults(data);
         setIsLoading(false);
-        eventSource.close();
+        stopPolling();
       } else if (data.status === "failed") {
+        setResults(data);
         setIsLoading(false);
-        eventSource.close();
+        stopPolling();
       } else if (data.status === "processing") {
         console.log("Analysis in progress...");
+        // Continue polling
       }
-    };
-
-    eventSource.onerror = () => {
+    } catch (error) {
+      console.error("Polling error:", error);
       setIsLoading(false);
-      eventSource.close();
-    };
+      stopPolling();
+    }
+  };
+
+  // Setup polling
+  const setupPolling = (jobId: string) => {
+    stopPolling(); // Clear any existing polling
+
+    // Poll immediately
+    pollStatus(jobId);
+
+    // Then poll every 5 seconds
+    pollingIntervalRef.current = setInterval(() => {
+      pollStatus(jobId);
+    }, 5000);
   };
 
   // Start analysis
@@ -72,10 +87,11 @@ export function useAnalysis() {
 
     setIsLoading(true);
     setResults(null);
+    stopPolling(); // Clear any existing polling
 
     try {
       const jobId = await startAnalysis(url);
-      setupEventSource(jobId);
+      setupPolling(jobId);
     } catch (error) {
       setIsLoading(false);
       console.error("Analysis error:", error);

@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { randomUUID } from "crypto";
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,18 +10,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
     }
 
-    const job_id = randomUUID();
+    // Call actual backend API
+    const response = await fetch(`${BACKEND_URL}/api/v1/analyze`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url }),
+    });
 
-    // TODO: Replace this with your actual backend API call to start the analysis job
-    // const response = await fetch('YOUR_BACKEND_API_URL/start-analysis', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({ url, job_id }),
-    // });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return NextResponse.json(
+        { error: errorData.error || "Failed to start analysis" },
+        { status: response.status }
+      );
+    }
 
-    return NextResponse.json({ job_id, status: "started" });
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Analysis error:", error);
     return NextResponse.json({ error: "Failed to start analysis" }, { status: 500 });
