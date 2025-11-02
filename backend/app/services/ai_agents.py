@@ -20,7 +20,7 @@ class AIAgentService:
             "X-Title": "SEAL-Underrate Analyzer",
         }
 
-    async def _post_chat(self, payload: Dict, timeout_seconds: int) -> Dict:
+    async def _post_chat(self, payload: Dict, timeout_seconds: int):
         async with aiohttp.ClientSession() as session:
             async with session.post(
             f"{self.base_url}/chat/completions",
@@ -29,7 +29,12 @@ class AIAgentService:
             timeout=aiohttp.ClientTimeout(total=timeout_seconds),
             ) as response:
                 response.raise_for_status()
-                return await response.json()
+                try:
+                    return await response.json()
+                except Exception:
+                    # If JSON parsing fails, return the raw text response
+                    text = await response.text()
+                    return text
 
     async def run_code_analyst(self, lighthouse_data: Dict, html: str) -> Dict:
         prompt = f"""You are a senior web performance and code quality analyst.
@@ -77,10 +82,14 @@ Return ONLY valid JSON, no markdown formatting."""
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.0,
-            "max_tokens": 4000,
+            "max_tokens": 20000,
         }
 
         result = await self._post_chat(payload, timeout_seconds=120)
+        if not isinstance(result, dict):
+            raise ValueError(f"OpenRouter API returned non-JSON response: {result}")
+        if "choices" not in result:
+            raise ValueError(f"OpenRouter API returned unexpected JSON structure: {result}")
         content = result["choices"][0]["message"]["content"]
         return self._parse_json_content(content)
 
@@ -121,6 +130,10 @@ Return ONLY valid JSON, no markdown formatting."""
         }
 
         result = await self._post_chat(payload, timeout_seconds=180)
+        if not isinstance(result, dict):
+            raise ValueError(f"OpenRouter API returned non-JSON response: {result}")
+        if "choices" not in result:
+            raise ValueError(f"OpenRouter API returned unexpected JSON structure: {result}")
         content_text = result["choices"][0]["message"]["content"]
         return self._parse_json_content(content_text)
 
@@ -163,6 +176,10 @@ Return JSON:
         }
 
         result = await self._post_chat(payload, timeout_seconds=120)
+        if not isinstance(result, dict):
+            raise ValueError(f"OpenRouter API returned non-JSON response: {result}")
+        if "choices" not in result:
+            raise ValueError(f"OpenRouter API returned unexpected JSON structure: {result}")
         content = result["choices"][0]["message"]["content"]
         return self._parse_json_content(content)
 

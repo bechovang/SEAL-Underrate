@@ -1,8 +1,12 @@
 import asyncio
 import tempfile
+import logging
 from pathlib import Path
 from typing import Dict
 from playwright.async_api import async_playwright
+from PIL import Image
+import io
+
 
 
 class DataCollector:
@@ -79,19 +83,46 @@ class DataCollector:
         return metrics
 
     async def _capture_screenshots(self, page) -> Dict[str, str]:
+        """Chụp màn hình ở 3 kích thước và RESIZE"""
         screenshots: Dict[str, str] = {}
+        logger = logging.getLogger(__name__)
+
         viewports = {
-            "desktop": {"width": 1920, "height": 1080},
-            "tablet": {"width": 768, "height": 1024},
-            "mobile": {"width": 375, "height": 667},
+            'desktop': {'width': 1920, 'height': 1080},
+            'tablet': {'width': 768, 'height': 1024},
+            'mobile': {'width': 375, 'height': 667}
         }
 
         for device, viewport in viewports.items():
             await page.set_viewport_size(viewport)
             await asyncio.sleep(1)
+
+            # Chụp viewport only (không full page để tránh ảnh quá cao)
+            screenshot_bytes = await page.screenshot(full_page=False)
+
+            # Resize để giảm size
+            img = Image.open(io.BytesIO(screenshot_bytes))
+
+            # Aggressive downscale để đảm bảo dưới 8000px limit
+            max_dimension = 512  # Much smaller to be safe
+
+            # Resize if any dimension exceeds max_dimension
+            if img.width > max_dimension or img.height > max_dimension:
+                # Calculate ratio to fit within max_dimension x max_dimension
+                ratio = min(max_dimension / img.width, max_dimension / img.height)
+                new_width = int(img.width * ratio)
+                new_height = int(img.height * ratio)
+                img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
+            # Optimize quality
             screenshot_path = self.temp_dir / f"{device}.png"
-            await page.screenshot(path=str(screenshot_path), full_page=True)
+            img.save(screenshot_path, 'PNG', optimize=True)
+
             screenshots[device] = str(screenshot_path)
+
+            # Log file size
+            file_size = screenshot_path.stat().st_size / 1024  # KB
+            logger.info(f"{device} screenshot: {file_size:.1f} KB")
 
         return screenshots
 
