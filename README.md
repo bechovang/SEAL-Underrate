@@ -414,11 +414,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Next.js** team for the amazing framework
 - **Playwright** for browser automation
 
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/seal-underrate/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/seal-underrate/discussions)
-- **Email**: your-email@example.com
 
 ---
 
