@@ -72,8 +72,11 @@ Return ONLY valid JSON, no markdown formatting."""
 
         payload = {
             "model": settings.CODE_ANALYST_MODEL,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.3,
+            "messages": [
+                {"role": "system", "content": "Return ONLY valid JSON. No prose, no markdown."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.0,
             "max_tokens": 4000,
         }
 
@@ -109,8 +112,11 @@ Return ONLY valid JSON, no markdown formatting."""
 
         payload = {
             "model": settings.VISION_ANALYST_MODEL,
-            "messages": [{"role": "user", "content": content}],
-            "temperature": 0.4,
+            "messages": [
+                {"role": "system", "content": "Return ONLY valid JSON. No prose, no markdown."},
+                {"role": "user", "content": content}
+            ],
+            "temperature": 0.0,
             "max_tokens": 5000,
         }
 
@@ -148,8 +154,11 @@ Return JSON:
 
         payload = {
             "model": settings.SYNTHESIZER_MODEL,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.5,
+            "messages": [
+                {"role": "system", "content": "Return ONLY valid JSON. No prose, no markdown."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.0,
             "max_tokens": 2000,
         }
 
@@ -159,14 +168,47 @@ Return JSON:
 
     @staticmethod
     def _parse_json_content(content: str) -> Dict:
-        try:
-            return json.loads(content)
-        except Exception:
-            import re
+        import re
 
-            json_match = re.search(r"```json\n(.*?)\n```", content, re.DOTALL)
-            if json_match:
-                return json.loads(json_match.group(1))
-            raise ValueError("Cannot parse AI response as JSON")
+        def try_load(s: str):
+            s = s.strip()
+            return json.loads(s)
+
+        # 1) Direct JSON
+        try:
+            return try_load(content)
+        except Exception:
+            pass
+
+        # 2) Any fenced block: ```json ...``` or ``` ...```
+        fence_blocks = re.findall(r"```(?:json|JSON)?\n([\s\S]*?)\n```", content)
+        for block in fence_blocks:
+            try:
+                return try_load(block)
+            except Exception:
+                continue
+
+        # 3) First top-level JSON object via brace balancing
+        start = content.find("{")
+        end = content.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            depth = 0
+            last = None
+            for i, ch in enumerate(content[start:end+1], start):
+                if ch == "{":
+                    depth += 1
+                elif ch == "}":
+                    depth -= 1
+                    if depth == 0:
+                        last = i + 1
+                        break
+            if last:
+                candidate = content[start:last]
+                try:
+                    return try_load(candidate)
+                except Exception:
+                    pass
+
+        raise ValueError("Cannot parse AI response as JSON")
 
 

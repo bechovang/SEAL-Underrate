@@ -11,3 +11,4 @@ class StatusResponse(BaseModel):
     job_id: UUID4
     status: str
     result: Optional[Any] = None
+    error_message: Optional[str] = None

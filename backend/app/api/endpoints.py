@@ -30,6 +30,11 @@ def get_status(job_id: str, db: Session = Depends(get_db)):
     job = db.query(Job).filter(Job.id == job_id).first()
     if not job:
         # Xử lý trường hợp không tìm thấy job
-        return {"job_id": job_id, "status": "NOT_FOUND", "result": None}
-    
-    return {"job_id": job.id, "status": job.status.value, "result": job.result}
+        return {"job_id": job_id, "status": "NOT_FOUND", "result": None, "error_message": None}
+
+    return {
+        "job_id": job.id,
+        "status": job.status.value,
+        "result": job.result,
+        "error_message": job.error_message
+    }
