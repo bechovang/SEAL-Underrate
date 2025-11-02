@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import schemas
 from app.models.job import Job
-from app.services.analyzer import run_fake_analysis_task
+from app.services.analyzer import run_analysis_task_bg
 
 router = APIRouter()
 
@@ -19,8 +19,8 @@ def analyze_url(
     db.commit()
     db.refresh(new_job)
 
-    # Thêm tác vụ phân tích vào nền
-    background_tasks.add_task(run_fake_analysis_task, str(new_job.id), db)
+    # Thêm tác vụ phân tích vào nền (DB session sẽ được quản lý bên trong task)
+    background_tasks.add_task(run_analysis_task_bg, str(new_job.id), new_job.target_url)
 
     return {"job_id": new_job.id}
 
