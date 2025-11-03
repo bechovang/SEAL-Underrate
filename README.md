@@ -5,12 +5,22 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100-green)](https://fastapi.tiangolo.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)](https://www.postgresql.org/)
 [![Playwright](https://img.shields.io/badge/Playwright-1.40-orange)](https://playwright.dev/)
+[![SEAL Hackathon 2025](https://img.shields.io/badge/SEAL_Hackathon_2025-Top_3_Finalist-purple)](https://www.facebook.com/share/p/1BGaAMGyCZ/)
 
 An intelligent web application that analyzes websites using AI to provide comprehensive UI/UX analysis, performance metrics, accessibility audits, and actionable improvement recommendations.
+
+## 🏆 Awards & Recognition
+
+**🥉 SEAL Hackathon 2025 - Top 3 Finalist**
+
+Team **Underrate** achieved Top 3 placement in the SEAL Hackathon 2025 with this AI-powered UI/UX analyzer, demonstrating innovative use of AI for web analysis and comprehensive evaluation capabilities.
+
+📢 [View Official Results Announcement](https://www.facebook.com/share/p/1BGaAMGyCZ/)
 
 ## 🌟 Features
 
 ### 🔍 **Comprehensive Analysis**
+
 - **Performance Analysis**: Load times, Core Web Vitals (FCP, LCP, CLS)
 - **Accessibility Audit**: WCAG compliance, contrast ratios, screen reader compatibility
 - **UI/UX Evaluation**: Visual hierarchy, responsive design, user experience
@@ -18,18 +28,21 @@ An intelligent web application that analyzes websites using AI to provide compre
 - **Code Quality**: HTML validation, semantic markup, best practices
 
 ### 🤖 **AI-Powered Insights**
+
 - **Claude 3.5 Sonnet Integration**: Advanced AI analysis via OpenRouter
 - **Multi-Device Screenshots**: Desktop, tablet, and mobile views
 - **Intelligent Recommendations**: Prioritized action items with impact assessment
 - **Natural Language Reports**: Human-readable executive summaries
 
 ### 🎨 **Modern Web Interface**
+
 - **Responsive Design**: Works seamlessly across all devices
 - **Real-time Updates**: Live status tracking during analysis
 - **Interactive Visualizations**: Charts, metrics, and issue categorization
 - **Dark/Light Theme**: User preference-based theming
 
 ### ⚡ **High Performance**
+
 - **Asynchronous Processing**: Non-blocking analysis jobs
 - **Background Tasks**: Efficient resource utilization
 - **Caching**: Optimized image and data delivery
@@ -38,6 +51,7 @@ An intelligent web application that analyzes websites using AI to provide compre
 ## 🛠 Tech Stack
 
 ### Backend
+
 - **FastAPI**: High-performance async web framework
 - **SQLAlchemy**: Modern ORM with async support
 - **PostgreSQL**: Robust relational database
@@ -46,6 +60,7 @@ An intelligent web application that analyzes websites using AI to provide compre
 - **OpenRouter API**: AI model access
 
 ### Frontend
+
 - **Next.js 14**: React framework with App Router
 - **TypeScript**: Type-safe development
 - **Tailwind CSS**: Utility-first CSS framework
@@ -53,6 +68,7 @@ An intelligent web application that analyzes websites using AI to provide compre
 - **Recharts**: Data visualization library
 
 ### DevOps
+
 - **Docker**: Containerization (optional)
 - **Python venv**: Virtual environment management
 - **npm/pnpm**: Package management
@@ -60,18 +76,21 @@ An intelligent web application that analyzes websites using AI to provide compre
 ## 📋 Prerequisites
 
 ### System Requirements
+
 - **Python 3.11+**
 - **Node.js 18+**
 - **PostgreSQL 15+**
 - **Git**
 
 ### API Keys
+
 - **OpenRouter API Key**: [Get from OpenRouter.ai](https://openrouter.ai/keys)
 - **PostgreSQL Database**: Local or cloud instance
 
 ## 🚀 Installation & Setup
 
 ### 1. Clone Repository
+
 ```bash
 git clone https://github.com/yourusername/seal-underrate.git
 cd seal-underrate
@@ -80,6 +99,7 @@ cd seal-underrate
 ### 2. Backend Setup
 
 #### Environment Configuration
+
 ```bash
 cd backend
 
@@ -91,6 +111,7 @@ nano .env
 ```
 
 **Required .env variables:**
+
 ```env
 # Database
 DATABASE_URL=postgresql://postgres:your_password@localhost/ui_analyzer_db
@@ -106,6 +127,7 @@ SYNTHESIZER_MODEL=anthropic/claude-3.5-sonnet
 ```
 
 #### Database Setup
+
 ```bash
 # Create PostgreSQL database
 createdb ui_analyzer_db
@@ -153,19 +175,23 @@ pnpm dev
 ## 📖 API Documentation
 
 ### Base URL
+
 ```
 http://localhost:8000/api/v1
 ```
 
 ### Authentication
+
 Currently no authentication required (Phase 2 implementation).
 
 ### Endpoints
 
 #### POST `/analyze`
+
 Submit a URL for analysis.
 
 **Request:**
+
 ```json
 {
   "url": "https://example.com"
@@ -173,6 +199,7 @@ Submit a URL for analysis.
 ```
 
 **Response (202 Accepted):**
+
 ```json
 {
   "job_id": "550e8400-e29b-41d4-a716-446655440000"
@@ -180,9 +207,11 @@ Submit a URL for analysis.
 ```
 
 #### GET `/status/{job_id}`
+
 Check analysis job status.
 
 **Response:**
+
 ```json
 {
   "job_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -225,9 +254,11 @@ Check analysis job status.
 ```
 
 #### GET `/screenshot/{job_id}/{device}`
+
 Retrieve analysis screenshots.
 
 **Parameters:**
+
 - `job_id`: Analysis job ID
 - `device`: `desktop` | `tablet` | `mobile`
 
@@ -245,22 +276,26 @@ Retrieve analysis screenshots.
 ### Features
 
 #### 📊 Dashboard
+
 - Overall performance score (0-100)
 - Category-specific metrics
 - Executive summary with AI insights
 
 #### 🔍 Issues Panel
+
 - **Code Issues**: Performance, accessibility, SEO problems
 - **UI Issues**: Design, typography, layout concerns
 - Severity levels: Critical, High, Medium, Low
 - Location coordinates for UI issues
 
 #### 📋 Priority Actions
+
 - Actionable recommendations
 - Impact assessment (High/Medium/Low)
 - Effort estimation (Easy/Medium/Hard)
 
 #### 📸 Screenshots
+
 - Multi-device captures (Desktop/Tablet/Mobile)
 - Click to enlarge modal view
 - Actual website screenshots used for AI analysis
@@ -328,6 +363,7 @@ alembic downgrade -1
 ## 🐳 Docker Deployment (Optional)
 
 ### Build Images
+
 ```bash
 # Backend
 cd backend
@@ -339,9 +375,10 @@ docker build -t seal-frontend .
 ```
 
 ### Run with Docker Compose
+
 ```yaml
 # docker-compose.yml
-version: '3.8'
+version: "3.8"
 services:
   db:
     image: postgres:15
@@ -366,12 +403,14 @@ services:
 ## 📊 Monitoring & Analytics
 
 ### Backend Metrics
+
 - Job completion rates
 - Analysis duration statistics
 - API response times
 - Error rates by category
 
 ### Frontend Analytics
+
 - User interaction tracking
 - Conversion funnel analysis
 - Performance monitoring
@@ -379,12 +418,14 @@ services:
 ## 🔒 Security Considerations
 
 ### API Security
+
 - Rate limiting implementation
 - Input validation and sanitization
 - CORS configuration
 - Error message sanitization
 
 ### Data Privacy
+
 - No user data storage
 - Temporary file cleanup
 - Secure API key management
@@ -398,10 +439,10 @@ services:
 5. Open Pull Request
 
 ### Code Style
+
 - **Backend**: Black, isort, mypy
 - **Frontend**: ESLint, Prettier
 - **Commits**: Conventional commits
-
 
 ## 🙏 Acknowledgments
 
@@ -410,7 +451,6 @@ services:
 - **FastAPI** team for excellent documentation
 - **Next.js** team for the amazing framework
 - **Playwright** for browser automation
-
 
 ---
 
