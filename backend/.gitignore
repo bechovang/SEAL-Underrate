@@ -60,6 +60,10 @@ env.bak/
 venv.bak/
 venv/
 
+# Environment variables
+.env
+.env.local
+
 # Jupyter / IPython
 .ipynb_checkpoints
 profile_default/
