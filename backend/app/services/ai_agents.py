@@ -1,30 +1,45 @@
 import json
 import base64
+import os
 from typing import Dict
 from pathlib import Path
+from dotenv import load_dotenv
 
 import aiohttp
 
-from app.utils.config import settings
+from app.utils.config import get_fresh_settings
+
+# Load .env at module level for background tasks
+ENV_FILE = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(ENV_FILE, override=True)
 
 
 class AIAgentService:
     def __init__(self):
-        self.base_url = settings.OPENROUTER_BASE_URL
-        self.api_key = settings.OPENROUTER_API_KEY
-        self.headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-            # OpenRouter recommends including Referer and Title for tracking
-            "HTTP-Referer": "https://example.local/",
-            "X-Title": "SEAL-Underrate Analyzer",
+        pass
+
+    def _get_headers(self):
+        """Get fresh headers with current API key"""
+        settings = get_fresh_settings()
+        api_key = os.environ.get("OPENROUTER_API_KEY", settings.OPENROUTER_API_KEY)
+        base_url = os.environ.get("OPENROUTER_BASE_URL", settings.OPENROUTER_BASE_URL)
+        return {
+            "base_url": base_url,
+            "headers": {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                # OpenRouter recommends including Referer and Title for tracking
+                "HTTP-Referer": "https://example.local/",
+                "X-Title": "SEAL-Underrate Analyzer",
+            }
         }
 
     async def _post_chat(self, payload: Dict, timeout_seconds: int):
+        config = self._get_headers()
         async with aiohttp.ClientSession() as session:
             async with session.post(
-            f"{self.base_url}/chat/completions",
-            headers=self.headers,
+            f"{config['base_url']}/chat/completions",
+            headers=config["headers"],
             json=payload,
             timeout=aiohttp.ClientTimeout(total=timeout_seconds),
             ) as response:
@@ -75,6 +90,7 @@ Provide your analysis in this EXACT JSON format:
 
 Return ONLY valid JSON, no markdown formatting."""
 
+        settings = get_fresh_settings()
         payload = {
             "model": settings.CODE_ANALYST_MODEL,
             "messages": [
@@ -119,6 +135,7 @@ Return ONLY valid JSON, no markdown formatting."""
                 }
             )
 
+        settings = get_fresh_settings()
         payload = {
             "model": settings.VISION_ANALYST_MODEL,
             "messages": [
@@ -165,6 +182,7 @@ Return JSON:
   "overall_score": <0-100>
 }}"""
 
+        settings = get_fresh_settings()
         payload = {
             "model": settings.SYNTHESIZER_MODEL,
             "messages": [

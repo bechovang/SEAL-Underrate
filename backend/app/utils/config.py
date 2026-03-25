@@ -1,5 +1,14 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
+# Get the backend directory
+BACKEND_DIR = Path(__file__).parent.parent.parent
+ENV_FILE = BACKEND_DIR / ".env"
+
+# Load .env with override to ensure our values are used
+load_dotenv(ENV_FILE, override=True)
 
 class Settings(BaseSettings):
     DATABASE_URL: str | None = None
@@ -12,8 +21,16 @@ class Settings(BaseSettings):
     SYNTHESIZER_MODEL: str = "anthropic/claude-3.5-sonnet"
 
     class Config:
-        env_file = ".env"
+        env_file = str(ENV_FILE)
+        env_file_encoding = "utf-8"
 
 
-settings = Settings()
+def get_fresh_settings():
+    """Get fresh settings from environment each time"""
+    # Reload .env to ensure latest values
+    load_dotenv(ENV_FILE, override=True)
+    return Settings()
+
+
+settings = get_fresh_settings()
 

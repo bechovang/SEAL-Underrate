@@ -1,3 +1,11 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load .env explicitly at import time for all modules
+ENV_FILE = Path(__file__).parent.parent / ".env"
+load_dotenv(ENV_FILE, override=True)
+
 from fastapi import FastAPI
 from app.api import endpoints
 

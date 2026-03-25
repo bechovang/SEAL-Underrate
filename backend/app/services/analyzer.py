@@ -1,11 +1,18 @@
 import asyncio
+import os
 from datetime import datetime
+from pathlib import Path
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 
 from app.database import SessionLocal
 from app.models.job import Job, JobStatus
 from app.services.data_collector import DataCollector
 from app.services.ai_agents import AIAgentService
+
+# Load .env file explicitly for background tasks
+ENV_FILE = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(ENV_FILE, override=True)
 
 
 async def run_analysis_task(job_id: str, target_url: str) -> None:
