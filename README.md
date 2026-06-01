@@ -690,6 +690,9 @@ NEXT_PUBLIC_BACKEND_URL=https://your-backend.railway.app
 - **Radix UI** for accessible components
 - **SEAL Hackathon 2025** organizers
 
+## Developed by 
+- Nguyen Ngoc Phuc - FPT University - SE203055
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
