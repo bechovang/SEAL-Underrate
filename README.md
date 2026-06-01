@@ -692,7 +692,8 @@ NEXT_PUBLIC_BACKEND_URL=https://your-backend.railway.app
 
 ## Developed by 
 - Nguyen Ngoc Phuc - FPT University - SE203055
-
+- Than Nhat Huy - FPT University - SE203317
+- Dam Le Tuan Anh - FPT University - SE204111
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
